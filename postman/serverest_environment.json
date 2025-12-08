@@ -1,0 +1,52 @@
+{
+	"id": "b63a9eca-9473-4025-949b-d12be3e0c3ea",
+	"name": "Serverest",
+	"values": [
+		{
+			"key": "baseUrl",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testUserEmail",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testUserEmail2",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "adminEmail",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "adminPassword",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "testUserId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-12-08T12:36:44.740Z",
+	"_postman_exported_using": "Postman/11.74.5"
+}
