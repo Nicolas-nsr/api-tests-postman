@@ -1,37 +1,45 @@
-name: API Tests with Postman + Newman
+name: API Tests - Postman/Newman
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
 
 jobs:
-  postman-tests:
+  run-postman:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
 
-      - name: Install Newman
+      - name: Install Newman and reporters
         run: |
           npm install -g newman newman-reporter-htmlextra
 
-      - name: Run Postman tests
+      - name: Run Postman collection with Newman
         run: |
           newman run postman/usuarios_collection.json \
             -e postman/serverest_environment.json \
-            --reporters cli,htmlextra \
-            --reporter-htmlextra-export ./newman-report.html
+            --reporters cli,htmlextra,json \
+            --reporter-htmlextra-export newman-report.html \
+            --reporter-json-export newman-results.json
+        # If you expect some tests may intentionally fail in negative scenarios, you can keep the default behavior.
+        # To always upload reports even if step fails, you can add 'continue-on-error: true' here (optional).
 
-      - name: Upload Test Report
+      - name: Upload Newman HTML report
         uses: actions/upload-artifact@v4
         with:
           name: newman-report
           path: newman-report.html
+
+      - name: Upload Newman JSON results
+        uses: actions/upload-artifact@v4
+        with:
+          name: newman-results
+          path: newman-results.json
