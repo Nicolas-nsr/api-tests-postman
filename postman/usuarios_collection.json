@@ -1,433 +1,345 @@
 {
-	"info": {
-		"_postman_id": "df0f2fa1-fb3f-4387-a1cb-3564c251f8b9",
-		"name": "ServeRest",
-		"description": "**O ServeRest é uma API REST gratuita que simula uma loja virtual com intuito de servir de material de estudos de testes de API.**\n\n**Não deixe de seguir o [autor do projeto](https://github.com/PauloGoncalvesBH) e deixar um star no repositório: [github.com/ServeRest/ServeRest](https://github.com/ServeRest/ServeRest)**\n\nEssa página documenta todas as rotas e como acessá-las. Para mais detalhes do ServeRest (como executar localmente utilizando Docker ou NPM, alterar timeout de autenticação, etc) acesse [o repositório do ServeRest](https://github.com/serverest/serverest).\n\nEstá utilizando Postman? Importe o [JSON do Swagger](https://raw.githubusercontent.com/ServeRest/ServeRest/trunk/docs/swagger.json) para ter acesso às collections.\n\nVai fazer teste de carga? Leia a seção '[Teste de Carga](https://github.com/ServeRest/ServeRest#teste-de-carga)'.\n\n\nMuito obrigado ♥ a todos que apoiam o projeto [financeiramente](https://opencollective.com/serverest#section-contributors) ou [com código, ideias e divulgação](https://github.com/ServeRest/ServeRest#contribuidores-), graças a vocês **mais de R$ 2000,00 foram doados para a ONG [Todas as letras](https://todasasletras.org/)** até o momento.\n\nO ServeRest possui um front, com status em beta, não deixe de conhecer: [front.serverest.dev](https://front.serverest.dev).\n\nPrecisa de apoio? [Abra uma issue](https://github.com/ServeRest/ServeRest/issues) ou contate o mantenedor do projeto:\n\n\nContact Support:\n Name: Paulo Gonçalves",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "16086735",
-		"_collection_link": "https://www.postman.com/lunar-equinox-221114/workspace/desafio-de-automao-de-testes-de-api/collection/16086735-df0f2fa1-fb3f-4387-a1cb-3564c251f8b9?action=share&source=collection_link&creator=16086735"
-	},
-	"item": [
-		{
-			"name": "Caminho Feliz",
-			"item": [
-				{
-					"name": "1. Login Válido",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", () => {\r",
-									"  pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"let json;\r",
-									"try { json = pm.response.json(); } catch (e) { json = {}; }\r",
-									"\r",
-									"pm.test(\"Response has authorization token\", () => {\r",
-									"  pm.expect(json).to.have.property(\"authorization\");\r",
-									"  pm.expect(json.authorization).to.be.a(\"string\").and.to.not.be.empty;\r",
-									"});\r",
-									"\r",
-									"// Store token in environment exactly as returned (some responses include \"Bearer ...\")\r",
-									"if (json && json.authorization) {\r",
-									"  pm.environment.set(\"authToken\", json.authorization);\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"email\": \"{{adminEmail}}\",\r\n  \"password\": \"{{adminPassword}}\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/login",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"login"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "2. Criar usuário válido",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"const email = `teste_${Date.now()}@qa.com`;\r",
-									"pm.environment.set(\"testUserEmail\", email);\r",
-									"pm.environment.set(\"testUserEmail2\", `dup_${Date.now()}@qa.com`);\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status is 201 (created)\", () => {\r",
-									"  pm.response.to.have.status(201);\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch(e) {}\r",
-									"\r",
-									"pm.test(\"Has success message\", () => {\r",
-									"  pm.expect(json).to.have.property(\"message\");\r",
-									"  pm.expect(json.message).to.be.a(\"string\").that.includes(\"Cadastro\");\r",
-									"});\r",
-									"\r",
-									"// Save user id for next requests\r",
-									"if (json && json._id) {\r",
-									"  pm.environment.set(\"testUserId\", json._id);\r",
-									"} else if (json && json._id === undefined && json.id) {\r",
-									"  pm.environment.set(\"testUserId\", json.id);\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{authToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"nome\": \"Usuário Teste\",\r\n  \"email\": \"{{testUserEmail}}\",\r\n  \"password\": \"teste123\",\r\n  \"administrador\": \"true\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/usuarios",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"usuarios"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "3. Listar todos os usuários",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				},
-				{
-					"name": "4. Buscar usuário por ID",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				},
-				{
-					"name": "5. Atualizar usuário",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status is 200 (or 201 if API creates new)\", () => {\r",
-									"  pm.expect([200,201]).to.include(pm.response.code);\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch(e) {}\r",
-									"\r",
-									"pm.test(\"Has message about update\", () => {\r",
-									"  pm.expect(json).to.have.property(\"message\");\r",
-									"  // accept either \"Registro alterado com sucesso\" or similar\r",
-									"  pm.expect(json.message.toLowerCase()).to.match(/alterad|sucesso|edit/i);\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									"if (pm.environment.get(\"authToken\")) {\r",
-									"  pm.request.headers.add({ key: \"Authorization\", value: pm.environment.get(\"authToken\") });\r",
-									"}\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{authToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"nome\": \"Usuário Teste Atualizado\",\r\n  \"email\": \"nicolas.test@mailinator.com\",\r\n  \"password\": \"teste123\",\r\n  \"administrador\": \"true\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/usuarios/{{testUserId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"usuarios",
-								"{{testUserId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "6. Excluir usuário",
-					"request": {
-						"method": "DELETE",
-						"header": []
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Cenários negativos",
-			"item": [
-				{
-					"name": "1. Criar usuário sem campo obrigatório",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Should return validation error status (e.g., 400)\", () => {\r",
-									"  pm.expect([400,422]).to.include(pm.response.code);\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch(e) {}\r",
-									"\r",
-									"pm.test(\"Has error message about required fields\", () => {\r",
-									"  pm.expect(json).to.have.property(\"message\");\r",
-									"  pm.expect(json.message.toLowerCase()).to.satisfy(m => m.includes(\"password\") || m.includes(\"campo\") || m.includes(\"obrig\"));\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{authToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"nome\": \"Usuário Sem Senha\",\r\n  \"email\": \"no_password_{{ $randomInt }}@qa.com\",\r\n  \"administrador\": \"true\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/usuarios",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"usuarios"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "2. Criar usuário com e-mail duplicado",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Expect duplicate email to be rejected (400)\", () => {\r",
-									"  pm.expect([400,409]).to.include(pm.response.code); // 409 Conflict or 400 depending on API\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch(e) {}\r",
-									"\r",
-									"pm.test(\"Has duplicate message\", () => {\r",
-									"  pm.expect(json).to.have.property(\"message\");\r",
-									"  pm.expect(json.message.toLowerCase()).to.satisfy(m => m.includes(\"email\") && (m.includes(\"existe\") || m.includes(\"já\")));\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "{{authToken}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"nome\": \"Usuário Duplicado\",\r\n  \"email\": \"{{testUserEmail}}\",\r\n  \"password\": \"teste123\",\r\n  \"administrador\": \"false\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/usuarios",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"usuarios"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "3. Acessar endpoint sem token",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				},
-				{
-					"name": "4. Acessar endpoint com token inválido",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				},
-				{
-					"name": "5. 5. Buscar usuário inexistente(id inválido)",
-					"request": {
-						"method": "GET",
-						"header": []
-					},
-					"response": []
-				},
-				{
-					"name": "6.Atualizar usuário com e-mail de outro usuário (duplicidade)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Updating to duplicate email should be rejected\", () => {\r",
-									"  pm.expect([400,409]).to.include(pm.response.code);\r",
-									"});\r",
-									"\r",
-									"let json = {};\r",
-									"try { json = pm.response.json(); } catch(e) {}\r",
-									"\r",
-									"pm.test(\"Has duplicate email message\", () => {\r",
-									"  if (json && json.message) pm.expect(json.message.toLowerCase()).to.satisfy(m => m.includes(\"email\") && (m.includes(\"existe\") || m.includes(\"já\") || m.includes(\"duplicate\")));\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/usuarios/{{testUserId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"usuarios",
-								"{{testUserId}}"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"variable": [
-		{
-			"key": "baseUrl",
-			"value": "//localhost:3000"
-		}
-	]
+  "info": {
+    "_postman_id": "df0f2fa1-fb3f-4387-a1cb-3564c251f8b9",
+    "name": "ServeRest - Usuarios",
+    "description": "Collection completa para testes da API ServeRest focada no módulo de Usuários.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Caminho Feliz",
+      "item": [
+        {
+          "name": "1. Login Válido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let json;",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "",
+                  "pm.test(\"Response has authorization token\", () => {",
+                  "  pm.expect(json).to.have.property(\"authorization\");",
+                  "  pm.expect(json.authorization).to.be.a(\"string\").and.to.not.be.empty;",
+                  "});",
+                  "",
+                  "// Store token",
+                  "if (json && json.authorization) {",
+                  "  pm.environment.set(\"authToken\", json.authorization);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "2. Criar usuário válido",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const email = `teste_${Date.now()}@qa.com`;",
+                  "pm.environment.set(\"testUserEmail\", email);",
+                  "pm.environment.set(\"testUserEmail2\", `dup_${Date.now()}@qa.com`);"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201 (created)\", () => {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "",
+                  "pm.test(\"Has success message\", () => {",
+                  "  pm.expect(json).to.have.property(\"message\");",
+                  "  pm.expect(json.message).to.be.a(\"string\").that.includes(\"Cadastro\");",
+                  "});",
+                  "",
+                  "// Save ID",
+                  "if (json && json._id) {",
+                  "  pm.environment.set(\"testUserId\", json._id);",
+                  "} else if (json && json.id) {",
+                  "  pm.environment.set(\"testUserId\", json.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Teste\",\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"teste123\",\n  \"administrador\": \"true\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "3. Listar todos os usuários",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "4. Buscar usuário por ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios", "{{testUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "5. Atualizar usuário",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (pm.environment.get(\"authToken\")) {",
+                  " pm.request.headers.add({ key: \"Authorization\", value: pm.environment.get(\"authToken\") });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 (or 201)\", () => {",
+                  "  pm.expect([200,201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "",
+                  "pm.test(\"Has message about update\", () => {",
+                  "  pm.expect(json.message.toLowerCase()).to.match(/alterad|sucesso|edit/);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "{{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Teste Atualizado\",\n  \"email\": \"nicolas.test@mailinator.com\",\n  \"password\": \"teste123\",\n  \"administrador\": \"true\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios", "{{testUserId}}"]
+            }
+          }
+        },
+        {
+          "name": "6. Excluir usuário",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "{{authToken}}", "type": "text" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios", "{{testUserId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cenários negativos",
+      "item": [
+        {
+          "name": "1. Criar usuário sem campo obrigatório",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Should return validation error\", () => {",
+                  "  pm.expect([400,422]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "let json={};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "",
+                  "pm.test(\"Has required field error\", () => {",
+                  "  pm.expect(json.message.toLowerCase()).to.satisfy(m => m.includes(\"campo\") || m.includes(\"senha\") || m.includes(\"obrig\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Sem Senha\",\n  \"email\": \"teste_sem_senha@qa.com\",\n  \"administrador\": \"true\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "2. Criar usuário com e-mail duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Expect duplicate email error\", () => {",
+                  "  pm.expect([400,409]).to.include(pm.response.code);",
+                  "});",
+                  "let json={};",
+                  "try { json = pm.response.json(); } catch(e) {}",
+                  "",
+                  "pm.test(\"Duplicate email message\", () => {",
+                  "  pm.expect(json.message.toLowerCase()).to.include(\"email\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "{{authToken}}", "type": "text" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário Duplicado\",\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"teste123\",\n  \"administrador\": \"false\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "3. Acessar endpoint sem token",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "4. Acessar endpoint com token inválido",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "token-invalido" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "5. Buscar usuário inexistente",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/id_nao_existe_123",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios", "id_nao_existe_123"]
+            }
+          }
+        },
+        {
+          "name": "6. Atualizar usuário com e-mail duplicado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Duplicate email update should fail\", () => {",
+                  " pm.expect([400,409]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "{{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Usuário\",\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"teste123\",\n  \"administrador\": \"true\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios/{{testUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios", "{{testUserId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }
