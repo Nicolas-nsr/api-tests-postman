@@ -1,299 +1,194 @@
-– Testes Automatizados da API Serverest (/usuarios)
-📌 Descrição do Projeto
+# 🧪 Testes Automatizados de API — Postman + Newman + GitHub Actions
 
-Este projeto contém uma suíte de testes automatizados desenvolvida no Postman e executável via Newman e GitHub Actions, com o objetivo de validar os endpoints relacionados ao recurso /usuarios da API pública Serverest (https://serverest.dev/).
+Este projeto contém um conjunto de testes automatizados desenvolvidos no **Postman** com execução via **Newman** e integração contínua utilizando **GitHub Actions**.
 
-Os testes cobrem:
+A API utilizada nos testes é a **Serverest**:  
+https://serverest.dev
 
-Criação de usuários
+---
 
-Listagem
+# 📌 Objetivo
 
-Consulta por ID
+Garantir **100% de cobertura** dos endpoints relacionados a **usuários (/usuarios)**, incluindo:
 
-Atualização
+- Criação de usuário  
+- Leitura de todos os usuários  
+- Leitura por ID  
+- Atualização  
+- Exclusão  
+- Cenários negativos  
+- Fluxo completo de “caminho feliz”
 
-Exclusão
+Os testes são organizados em duas baterias:
 
-Validações negativas e cenários de erro
+1. **Fluxo principal (Happy Path)**  
+2. **Validações negativas (erros esperados)**  
 
-Autenticação JWT
+---
 
-Execução encadeada (cada requisição alimenta a próxima)
-
-O conjunto garante 100% de cobertura funcional dos endpoints /usuarios.
-
-📂 Estrutura do Projeto
-├─ postman/
-│   ├─ usuarios_collection.json
-│   └─ serverest_environment.json
+# 📂 Estrutura do Projeto
+testes-api-postman/
 │
-├─ .github/
-│   └─ workflows/
-│       └─ postman-newman.yml
+├── postman/
+│ ├── serverest_environment.json
+│ └── usuarios_collection.json
 │
-├─ reports/  (gerado pelo Newman)
-│   └─ newman-report.html
+├── .github/
+│ └── workflows/
+│ └── api-tests.yml
 │
-└─ README.md
+├── report.html # relatório gerado pelo Newman (execução local)
+├── package.json # dependências do Newman
+└── README.md
 
-🛠️ Requisitos
-Para rodar localmente
 
-Node.js 16+
+---
 
-NPM
+# 🧰 Ferramentas / Tecnologias
 
-Postman (opcional)
+- **Postman**
+- **Newman**
+- **Node.js**
+- **GitHub Actions**
+- **Serverest.dev API**
 
-Newman
+---
 
-Reporter HTML Extra
+# 🚀 Como executar os testes localmente
 
-Para CI/CD
+## 1. Instalar Node.js (se ainda não tiver)
+https://nodejs.org/en/
 
-Repositório GitHub
+Verifique:
+node -v
+npm -v
 
-🚀 Como executar os testes
-✔️ 1. Rodar usando o Postman (Collection Runner)
 
-Importe os arquivos:
+---
 
-usuarios_collection.json
+## 2. Instalar Newman globalmente
+npm install -g newman
 
-serverest_environment.json
+---
 
-Selecione o Environment Serverest Tests
+## 3. Instalar dependências do projeto
+(Somente se estiver usando package.json)
 
-Vá até a Collection → Run Collection
+npm install
 
-Execute
+---
 
-A execução já está configurada de forma encadeada:
+## 4. Executar a coleção de testes com o Newman
+newman run postman/usuarios_collection.json
+-e postman/serverest_environment.json
+-r cli,html --reporter-html-export report.html
 
-Login → cria token
+Após a execução, abra o arquivo:
+report.html
 
-Criação de usuário → salva id
+---
 
-Atualizar → usa o id
+# 🤖 Execução automática no GitHub Actions
 
-Buscar → usa o id
+Este projeto possui uma pipeline configurada no arquivo:
+.github/workflows/api-tests.yml
 
-Excluir → usa o id
+A pipeline roda automaticamente em:
 
-✔️ 2. Rodar via Newman (CLI)
-Instale o Newman:
-npm install -g newman newman-reporter-htmlextra
+- **push**
+- **pull_request**
 
-Execute:
-newman run postman/usuarios_collection.json \
-  -e postman/serverest_environment.json \
-  --reporters cli,htmlextra \
-  --reporter-htmlextra-export reports/newman-report.html
+E executa:
 
+- Instalação do Node  
+- Instalação do Newman  
+- Execução dos testes  
+- Geração de relatório  
+- Upload do relatório como artefato da pipeline  
 
-O relatório será gerado em:
+O relatório fica disponível no GitHub:  
+**Actions → Última execução → Artifacts → report.html**
 
-reports/newman-report.html
+---
 
-✔️ 3. Execução automática via GitHub Actions
+# 🧪 Casos de Teste Implementados
 
-A pipeline está no arquivo:
+### ✔️ **Caminho feliz**
+1. Criar um novo usuário  
+2. Buscar todos os usuários  
+3. Buscar usuário criado por ID  
+4. Atualizar usuário por ID  
+5. Excluir usuário  
+6. Validar que o usuário excluído não existe mais  
 
-.github/workflows/postman-newman.yml
+---
 
+### ❌ **Cenários negativos**
+1. Criar usuário sem campo obrigatório  
+2. Criar usuário com email duplicado  
+3. Buscar usuário com ID inválido  
+4. Atualizar usuário inexistente  
+5. Excluir usuário inexistente  
+6. Enviar token inválido  
+7. Tentar acesso sem token  
 
-Ela faz:
+---
 
-Instala Node
+# 🔐 Autenticação
 
-Instala Newman
+A API exige **token JWT**, mas o Serverest permite simular login para obter o token.
 
-Executa a collection
+O ambiente Postman (`serverest_environment.json`) já contém:
 
-Gera relatório
+- URL base
+- Token dinâmico via script de pré-requisição
 
-Publica como artefato
+---
 
-Basta realizar push para main, e os testes são executados automaticamente.
+# 💡 Como importar o projeto no Postman
 
-🧪 Testes Implementados
+1. Abra o Postman  
+2. Vá em **File → Import**  
+3. Importe:
+   - `postman/usuarios_collection.json`
+   - `postman/serverest_environment.json`
 
-A suíte é dividida em:
+4. Execute a coleção normalmente pelo botão **Run**
 
-Caminho feliz (cenários positivos)
+---
 
-Validações negativas (erros controlados)
+# 📄 Relatório HTML
 
-Todos os testes estão organizados em ordem lógica para permitir execução automática.
+Ao rodar localmente, o relatório é salvo em:
 
-✅ Cenários POSITIVOS – (Caminho Feliz)
-1. Login – Obter Token JWT
+report.html
 
-Envia credenciais válidas
 
-Valida:
+Na pipeline do GitHub, ele aparece como **artifact** após cada execução.
 
-status 200
+---
 
-campo authorization
+# 📫 Contato
 
-Armazena o token em:
+Projeto desenvolvido por **Nicolas Seabra**  
+QA Analyst | Testes de API | Postman | Automação  
+LinkedIn: *adicione o link aqui*
 
-authToken
+Se tiver dúvidas ou quiser melhorar este projeto, abra uma **issue**!
 
-2. Criar usuário (POST /usuarios)
+---
 
-Envia corpo JSON válido:
+# 🏁 Conclusão
 
-{
-  "nome": "Usuário Teste",
-  "email": "teste{{timestamp}}@qa.com",
-  "password": "123456",
-  "administrador": "true"
-}
+Este projeto demonstra:
 
+- Testes automatizados completos com Postman  
+- Execução automatizada via Newman  
+- CI no GitHub Actions  
+- Cobertura total dos endpoints de /usuarios  
+- Testes organizados em fluxo feliz + cenários negativos  
 
-Valida:
 
-status 201
 
-Mensagem Cadastro realizado com sucesso
 
-Armazena:
 
-testUserId
-
-testUserEmail
-
-3. Listar usuários (GET /usuarios)
-
-Valida:
-
-status 200
-
-Estrutura da lista
-
-Tempo de resposta aceitável
-
-4. Buscar usuário por ID (GET /usuarios/{{testUserId}})
-
-Valida:
-
-status 200
-
-Nome/email iguais aos dados enviados
-
-Response contém o ID salvo
-
-5. Atualizar usuário (PUT /usuarios/{{testUserId}})
-
-Envia JSON atualizando nome/email.
-
-Valida:
-
-status 200
-
-Mensagem "Registro alterado com sucesso"
-
-6. Deletar usuário (DELETE /usuarios/{{testUserId}})
-
-Valida:
-
-status 200
-
-Mensagem "Registro excluído com sucesso"
-
-❌ Cenários NEGATIVOS
-1. Criar usuário com email já existente
-
-Valida:
-
-status 400
-
-Mensagem "Este email já está sendo usado"
-
-2. Criar usuário com campos faltando
-
-Corpo sem e-mail ou sem senha
-
-Valida:
-
-status 400
-
-Mensagens de validação
-
-3. Buscar usuário inexistente
-
-Valida:
-
-status 400 ou 404
-
-Mensagem "Usuário não encontrado"
-
-4. Atualizar com ID inválido
-
-Valida:
-
-status 400
-
-5. Acessar endpoints sem token (quando aplicável)
-
-Headers sem Authorization
-
-Valida:
-
-status 401 ou 403
-
-🔗 Execução Encadeada (Automática)
-
-As variáveis de ambiente permitem que cada requisição dependa da anterior, sem intervenção manual.
-
-Exemplos de variáveis preenchidas automaticamente:
-
-Token:
-pm.environment.set("authToken", json.authorization);
-
-ID do usuário:
-pm.environment.set("testUserId", json._id);
-
-Email de teste:
-pm.environment.set("testUserEmail", json.email);
-
-
-Isso faz com que:
-
-O teste de "Buscar por ID" só rode após a criação
-
-O "Atualizar" use o ID válido
-
-O "Deletar" elimine o usuário correto
-
-📊 Relatórios
-
-Ao rodar via Newman, o relatório HTML é gerado automaticamente em:
-
-reports/newman-report.html
-
-
-Exibe:
-
-Resultados individuais por request
-
-Tempo de execução
-
-Logs
-
-Assertions
-
-Erros
-
-Tabela geral da suíte
-
-🤝 Contribuição
-
-Pull requests são bem-vindos.
-
-📄 Licença
-
-MIT License.
