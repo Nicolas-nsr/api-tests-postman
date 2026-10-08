@@ -27,18 +27,26 @@ Os testes são organizados em duas baterias:
 ---
 
 # 📂 Estrutura do Projeto
+
 testes-api-postman/
 │
 ├── postman/
 │ ├── serverest_environment.json
+
 │ └── usuarios_collection.json
 │
+
 ├── .github/
+
 │ └── workflows/
+
 │ └── api-tests.yml
 │
+
 ├── report.html # relatório gerado pelo Newman (execução local)
+
 ├── package.json # dependências do Newman
+
 └── README.md
 
 
